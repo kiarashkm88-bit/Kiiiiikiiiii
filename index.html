@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THE LAST SIGNAL - Part 1</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #05070a; color: #cfd8e3;
+    font-family: Tahoma, "Vazirmatn", sans-serif; overflow: hidden; }
+  body { padding: env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0); }
+
+  .screen { position: fixed; inset: 0; display: none; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px; text-align: center;
+    background: radial-gradient(ellipse at center, #0d1420 0%, #030406 100%); }
+  .screen.active { display: flex; animation: fade .8s ease; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  h1 { font-size: 2rem; letter-spacing: 3px; color: #8fb8e8; margin-bottom: 8px; font-family: Georgia, serif; }
+  h2 { font-size: 1.2rem; color: #6a8fb8; margin-bottom: 18px; }
+  p { max-width: 420px; line-height: 1.9; margin-bottom: 14px; font-size: 1rem; }
+  .quote { color: #9fb6cc; font-style: italic; border-right: 2px solid #2b4560; padding-right: 12px; }
+  .small { font-size: .85rem; color: #56697d; }
+
+  button { background: transparent; border: 1px solid #3a5a7a; color: #b9d4ea;
+    padding: 12px 22px; margin: 6px; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+  button:active { background: #14253a; }
+
+  /* scene */
+  #scene { background: linear-gradient(#0b1420, #05080c); }
+  #sceneTitle { position: absolute; top: 16px; width: 100%; font-size: .95rem; color: #6a8fb8; }
+  #sceneText { max-width: 440px; min-height: 120px; line-height: 1.9; margin-bottom: 20px; }
+  .hotspots { display: flex; flex-wrap: wrap; justify-content: center; }
+  .vignette { position: fixed; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 140px #000; }
+  .flicker { animation: flicker 3s infinite; }
+  @keyframes flicker { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:.6} 94%{opacity:1} 97%{opacity:.8} }
+
+  /* puzzle */
+  #puzzle { z-index: 10; display: none; }
+  #puzzle.open { display: flex; }
+  .clue-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0 18px; }
+  .clue { border: 1px solid #2b4560; padding: 10px 12px; border-radius: 6px; font-size: .9rem; background: #0b141f; }
+  #display { font-size: 2rem; letter-spacing: 10px; border-bottom: 1px solid #3a5a7a;
+    min-width: 200px; padding: 6px; margin-bottom: 14px; direction: ltr; }
+  .keypad { display: grid; grid-template-columns: repeat(3, 70px); gap: 8px; direction: ltr; }
+  .keypad button { margin: 0; padding: 14px 0; font-size: 1.2rem; }
+  #msg { min-height: 24px; margin-top: 12px; color: #c46b6b; }
+
+  #shake { animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</head>
+<body>
+
+<!-- Title -->
+<section class="screen active" id="s-title">
+  <h1>THE LAST SIGNAL</h1>
+  <h2>آخرین سیگنال | Part 1: THE ABANDONED TOWN</h2>
+  <p>سال ۲۰۱۴، یک مرکز تحقیقاتی مخفی تعطیل شد. دوازده سال بعد، آرین یک پیام صوتی از خواهر گمشده‌اش دریافت می‌کند.</p>
+  <button onclick="show('s-intro')">شروع</button>
+</section>
+
+<!-- Intro -->
+<section class="screen" id="s-intro">
+  <p>آرین پشت فرمان است. جاده مه‌آلود است. ماشین ناگهان خاموش می‌شود.</p>
+  <p>رادیو روشن می‌شود و صدایی آشنا از آن بیرون می‌آید.</p>
+  <p class="quote">«آرین… اگه صدای منو می‌شنوی، به بیمارستان برنگرد.»</p>
+  <p>چند ثانیه سکوت. ... «و مهم‌تر از همه، به کسی که شبیه منه اعتماد نکن.»</p>
+  <button onclick="startScene('road')">پیاده شدن و رفتن به شهر</button>
+</section>
+
+<!-- Scene screen -->
+<section class="screen" id="scene">
+  <div id="sceneTitle"></div>
+  <div class="vignette"></div>
+  <p id="sceneText"></p>
+  <div class="hotspots" id="hotspots"></div>
+</section>
+
+<!-- Puzzle -->
+<section class="screen" id="puzzle">
+  <h2>گاوصندوق</h2>
+  <p class="quote">«زمان، چیزی را نشان می‌دهد که طبیعت فراموش کرده است.»</p>
+  <div class="clue-row">
+    <div class="clue">روی دیوار: ساعتی که روی ۸:۲۰ ایستاده</div>
+    <div class="clue">روی دیوار: ماهی با سه خط زیرش</div>
+    <div class="clue">روی دیوار: درختی با چهار شاخه شکسته</div>
+  </div>
+  <div id="display">----</div>
+  <div class="keypad" id="keypad"></div>
+  <div style="margin-top:14px"><button onclick="closePuzzle()">بستن</button></div>
+  <div id="msg"></div>
+</section>
+
+<!-- Ending -->
+<section class="screen" id="s-end">
+  <p>آرین از خانه بیرون می‌آید. چراغ‌های بیمارستان یکی‌یکی روشن می‌شوند.</p>
+  <p>در پنجره‌ی طبقه سوم، کسی ایستاده که دقیقاً شبیه خود آرین است.</p>
+  <h1 class="flicker" style="margin-top:30px;font-size:1.4rem;color:#c46b6b">THE HOSPITAL IS WAITING FOR YOU.</h1>
+  <p class="small" style="margin-top:30px">پایان پارت اول</p>
+  <button onclick="location.reload()">شروع دوباره</button>
+</section>
+
+<script>
+const CODE = "0824"; // رمز گاوصندوق؛ با سرنخ‌های دیوار هماهنگ کنید
+let entered = "";
+let hasKey = false;
+let safeOpened = false;
+
+const scenes = {
+  road: {
+    title: "جاده‌ی شهر",
+    text: "ماشین خاموش شده است. از جاده به سمت شهری متروکه می‌روید. تابلویی با نام BLACKWOOD روی آن نصب شده است.",
+    spots: [{ label: "ورود به خانه‌ی متروکه", go: "house" }]
+  },
+  house: {
+    title: "خانه‌ی متروکه",
+    text: "در خانه بوی نم می‌دهد. روی میز دفترچه‌ای باز است. در گوشه‌ی اتاق یک گاوصندوق به دیوار چسبیده است.",
+    spots: [
+      { label: "خواندن دفترچه", action: () => alert("در دفترچه نوشته شده: ساعت در لحظه‌ی ناپدیدشدن صاحب خانه روی ۸:۲۰ متوقف شده بود.") },
+      { label: "بررسی گاوصندوق", action: openPuzzle },
+      { label: "خروج به خیابان", go: "street" }
+    ]
+  },
+  street: {
+    title: "خیابان",
+    text: "چراغ‌های خیابان خاموش‌اند. صدای قدم‌هایی از پشت سرتان می‌آید که با حرکت شما هماهنگ نیست.",
+    spots: [
+      { label: "برگشتن به خانه", go: "house" },
+      { label: "رفتن به بیمارستان", go: "hospital", need: "key" }
+    ]
+  },
+  hospital: {
+    title: "بیمارستان",
+    text: "در بیمارستان بسته است. اگر کلید بیمارستان را داشته باشید وارد می‌شوید.",
+    spots: [{ label: "ورود", go: "end" }]
+  }
+};
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function startScene(id) {
+  show("scene");
+  renderScene(id);
+}
+
+function renderScene(id) {
+  const s = scenes[id];
+  document.getElementById("sceneTitle").textContent = s.title;
+  document.getElementById("sceneText").textContent = s.text;
+  const box = document.getElementById("hotspots");
+  box.innerHTML = "";
+  s.spots.forEach(spot => {
+    const b = document.createElement("button");
+    b.textContent = spot.label;
+    b.onclick = () => {
+      if (spot.action) return spot.action();
+      if (spot.need === "key" && !hasKey) {
+        document.getElementById("sceneText").textContent = "در بسته است. باید ابتدا کلید را پیدا کنید.";
+        return;
+      }
+      if (spot.go === "end") return show("s-end");
+      renderScene(spot.go);
+    };
+    box.appendChild(b);
+  });
+}
+
+function openPuzzle() {
+  if (safeOpened) {
+    alert("گاوصندوق باز است. عکس خواهرتان داخل آن است.");
+    return;
+  }
+  entered = "";
+  updateDisplay();
+  document.getElementById("msg").textContent = "";
+  document.getElementById("puzzle").classList.add("open");
+  buildKeypad();
+}
+
+function closePuzzle() {
+  document.getElementById("puzzle").classList.remove("open");
+}
+
+function buildKeypad() {
+  const pad = document.getElementById("keypad");
+  pad.innerHTML = "";
+  ["1","2","3","4","5","6","7","8","9","C","0","OK"].forEach(k => {
+    const b = document.createElement("button");
+    b.textContent = k;
+    b.onclick = () => press(k);
+    pad.appendChild(b);
+  });
+}
+
+function updateDisplay() {
+  const shown = (entered + "----").slice(0, 4);
+  document.getElementById("display").textContent = shown;
+}
+
+function press(k) {
+  const msg = document.getElementById("msg");
+  if (k === "C") { entered = ""; msg.textContent = ""; }
+  else if (k === "OK") { check(); return; }
+  else if (entered.length < 4) { entered += k; }
+  updateDisplay();
+}
+
+function check() {
+  const msg = document.getElementById("msg");
+  if (entered === CODE) {
+    safeOpened = true;
+    hasKey = true;
+    msg.style.color = "#6bc4a0";
+    msg.textContent = "گاوصندوق باز شد. کلید بیمارستان و عکسی از خواهرتان داخل آن است.";
+    setTimeout(() => {
+      alert("پشت عکس نوشته شده: «او اولین نفر نبود.»");
+      closePuzzle();
+    }, 900);
+  } else {
+    msg.style.color = "#c46b6b";
+    msg.textContent = "رمز اشتباه است.";
+    document.getElementById("puzzle").classList.add("open");
+    const d = document.getElementById("display");
+    d.id = "display";
+    d.classList.remove("shake");
+    void d.offsetWidth;
+    d.style.animation = "shake .4s";
+    setTimeout(() => d.style.animation = "", 400);
+    const pad = document.getElementById("keypad");
+    pad.style.opacity = ".5";
+    setTimeout(() => pad.style.opacity = "1", 400);
+    entered = "";
+    updateDisplay();
+  }
+}
+</script>
+</body>
+</html>
